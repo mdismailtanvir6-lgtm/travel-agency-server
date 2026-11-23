@@ -2,6 +2,8 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import usersRouter from "./routes/users.route.js";
+import destinationsRouter from "./routes/destinations.route.js";
 
 const app = express();
 
@@ -24,6 +26,10 @@ const port = process.env.PORT || 5000;
 app.get("/", (req, res) => {
   res.send("Hello World from the server!");
 });
+
+// Mount routes
+app.use("/users", usersRouter);
+app.use("/destinations", destinationsRouter);
 
 // Start server
 app.listen(port, () => {
