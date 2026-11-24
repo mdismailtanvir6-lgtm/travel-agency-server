@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import usersRouter from "./routes/users.route.js";
 import destinationsRouter from "./routes/destinations.route.js";
+import reviewsRouter from "./routes/reviews.route.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 // Mount routes
 app.use("/users", usersRouter);
 app.use("/destinations", destinationsRouter);
+app.use("/reviews", reviewsRouter);
 
 // Start server
 app.listen(port, () => {
