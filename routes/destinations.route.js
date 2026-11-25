@@ -48,6 +48,29 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// ==== get destination by Slug =====
+router.get("/:slug", async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    const destination = await destinationsCollection.findOne({ slug });
+
+    if (!destination) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Destination not found." });
+    }
+
+    res.send(destination);
+  } catch (error) {
+    console.error("Error fetching destination by slug:", error);
+
+    res
+      .status(500)
+      .send({ success: false, message: "Failed to fetch destination." });
+  }
+});
+
 // ==== post destination =====
 router.post("/", async (req, res) => {
   const newDestination = req.body;
