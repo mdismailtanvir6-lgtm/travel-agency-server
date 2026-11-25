@@ -1,4 +1,5 @@
-// routes/destinations.route.js
+// routes/destinations.route.j
+
 import express from "express";
 import { ObjectId } from "mongodb";
 import { destinationsCollection } from "../lib/connectDB.js";
@@ -12,39 +13,10 @@ router.get("/", async (req, res) => {
     res.send(destinations);
   } catch (error) {
     console.error("Error fetching destinations:", error);
-    res
-      .status(500)
-      .send({ success: false, message: "Failed to fetch destinations." });
-  }
-});
-
-// ==== get destination by ID =====
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-
-  if (!ObjectId.isValid(id)) {
-    return res
-      .status(400)
-      .send({ success: false, message: "Invalid destination ID." });
-  }
-
-  try {
-    const destination = await destinationsCollection.findOne({
-      _id: new ObjectId(id),
+    res.status(500).send({
+      success: false,
+      message: "Failed to fetch destinations.",
     });
-
-    if (!destination) {
-      return res
-        .status(404)
-        .send({ success: false, message: "Destination not found." });
-    }
-
-    res.send(destination);
-  } catch (error) {
-    console.error("Error fetching destination:", error);
-    res
-      .status(500)
-      .send({ success: false, message: "Failed to fetch destination." });
   }
 });
 
@@ -56,18 +28,19 @@ router.get("/:slug", async (req, res) => {
     const destination = await destinationsCollection.findOne({ slug });
 
     if (!destination) {
-      return res
-        .status(404)
-        .send({ success: false, message: "Destination not found." });
+      return res.status(404).send({
+        success: false,
+        message: "Destination not found.",
+      });
     }
 
     res.send(destination);
   } catch (error) {
     console.error("Error fetching destination by slug:", error);
-
-    res
-      .status(500)
-      .send({ success: false, message: "Failed to fetch destination." });
+    res.status(500).send({
+      success: false,
+      message: "Failed to fetch destination.",
+    });
   }
 });
 
@@ -81,27 +54,53 @@ router.post("/", async (req, res) => {
     res.status(201).send({
       success: true,
       message: "Destination created successfully.",
-      destination: { _id: result.insertedId, ...newDestination },
+      destination: {
+        _id: result.insertedId,
+        ...newDestination,
+      },
     });
 
     console.log("New destination created:", newDestination);
   } catch (error) {
     console.error("Error creating destination:", error);
-    res
-      .status(500)
-      .send({ success: false, message: "Failed to create destination." });
+    res.status(500).send({
+      success: false,
+      message: "Failed to create destination.",
+    });
   }
 });
 
-// ==== patch destination =====
+// ==== patch destination by ID =====
 router.patch("/:id", async (req, res) => {
   const { id } = req.params;
-  const updateData = req.body;
 
-  if (!ObjectId.isValid(id)) {
-    return res
-      .status(400)
-      .send({ success: false, message: "Invalid destination ID." });
+  if (!ObjectId.isValid(id) || id.length !== 24) {
+    return res.status(400).send({
+      success: false,
+      message: "Invalid destination ID.",
+    });
+  }
+
+  const allowedFields = [
+    "name",
+    "slug",
+    "country",
+    "city",
+    "description",
+    "category",
+    "averageCost",
+    "image",
+  ];
+
+  const updateData = Object.fromEntries(
+    Object.entries(req.body).filter(([key]) => allowedFields.includes(key)),
+  );
+
+  if (Object.keys(updateData).length === 0) {
+    return res.status(400).send({
+      success: false,
+      message: "No valid fields provided for update.",
+    });
   }
 
   try {
@@ -111,28 +110,34 @@ router.patch("/:id", async (req, res) => {
     );
 
     if (result.matchedCount === 0) {
-      return res
-        .status(404)
-        .send({ success: false, message: "Destination not found." });
+      return res.status(404).send({
+        success: false,
+        message: "Destination not found.",
+      });
     }
 
-    res.send({ success: true, message: "Destination updated successfully." });
+    res.send({
+      success: true,
+      message: "Destination updated successfully.",
+    });
   } catch (error) {
     console.error("Error updating destination:", error);
-    res
-      .status(500)
-      .send({ success: false, message: "Failed to update destination." });
+    res.status(500).send({
+      success: false,
+      message: "Failed to update destination.",
+    });
   }
 });
 
-// ==== delete destination =====
+// ==== delete destination by ID =====
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
-  if (!ObjectId.isValid(id)) {
-    return res
-      .status(400)
-      .send({ success: false, message: "Invalid destination ID." });
+  if (!ObjectId.isValid(id) || id.length !== 24) {
+    return res.status(400).send({
+      success: false,
+      message: "Invalid destination ID.",
+    });
   }
 
   try {
@@ -141,17 +146,22 @@ router.delete("/:id", async (req, res) => {
     });
 
     if (result.deletedCount === 0) {
-      return res
-        .status(404)
-        .send({ success: false, message: "Destination not found." });
+      return res.status(404).send({
+        success: false,
+        message: "Destination not found.",
+      });
     }
 
-    res.send({ success: true, message: "Destination deleted successfully." });
+    res.send({
+      success: true,
+      message: "Destination deleted successfully.",
+    });
   } catch (error) {
     console.error("Error deleting destination:", error);
-    res
-      .status(500)
-      .send({ success: false, message: "Failed to delete destination." });
+    res.status(500).send({
+      success: false,
+      message: "Failed to delete destination.",
+    });
   }
 });
 
