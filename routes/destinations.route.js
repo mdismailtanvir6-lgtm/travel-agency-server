@@ -3,6 +3,7 @@
 import express from "express";
 import { ObjectId } from "mongodb";
 import { destinationsCollection } from "../lib/connectDB.js";
+import { generateSlug } from "../helper/destinations.js";
 
 const router = express.Router();
 
@@ -46,7 +47,9 @@ router.get("/:slug", async (req, res) => {
 
 // ==== post destination =====
 router.post("/", async (req, res) => {
-  const newDestination = req.body;
+  const { name, ...rest } = req.body;
+  const slug = generateSlug(name);
+  const newDestination = { name, slug, ...rest };
 
   try {
     const result = await destinationsCollection.insertOne(newDestination);
@@ -69,6 +72,7 @@ router.post("/", async (req, res) => {
     });
   }
 });
+
 
 // ==== patch destination by ID =====
 router.patch("/:id", async (req, res) => {
